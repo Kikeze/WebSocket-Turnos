@@ -4,14 +4,16 @@ const ticketControl = new TicketControl
 
 
 const socketController = (socket) => {
-
     socket.emit("ultimo-ticket", ticketControl.ultimo);
+    socket.emit("estado-actual", ticketControl.ultimos);
+    socket.emit("tickets-pendientes", ticketControl.tickets.length);
     
     socket.on("siguiente-ticket", (payload, callback) => {
         const siguiente = ticketControl.siguiente();
         callback( siguiente );
 
-        //TODO: Notificar nuevo ticket
+        socket.broadcast.emit("tickets-pendientes", ticketControl.tickets.length);
+        socket.emit("estado-actual", ticketControl.ultimos);
     });
 
     socket.on("atender-ticket", (payload, callback) => {
@@ -25,6 +27,11 @@ const socketController = (socket) => {
         }
 
         const ticket = ticketControl.atenderTicket( escritorio );
+
+        socket.broadcast.emit("estado-actual", ticketControl.ultimos);
+        socket.broadcast.emit("tickets-pendientes", ticketControl.tickets.length);
+        socket.emit("tickets-pendientes", ticketControl.tickets.length);
+
         if( !ticket ) {
             return callback({
                 ok: false,
@@ -38,7 +45,6 @@ const socketController = (socket) => {
             });
         }
     });
-
 };
 
 
