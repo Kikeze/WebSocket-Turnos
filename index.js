@@ -1,4 +1,4 @@
-require('dotenv').config("vars.env");
+require("dotenv").config({ path: "vars.env" });
 
 const Server = require('./models/server');
 
